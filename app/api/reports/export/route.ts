@@ -65,17 +65,23 @@ export const GET = requireAuth(async (request: NextRequest, user) => {
     // Calculate summary
     const totalParticipants = event.participants.length;
     const totalMlkbanko = event.participants.reduce(
-      (sum, p) => sum + p.mlkbankoAmount,
+      (sum: number, p: { mlkbankoAmount: number }) => sum + p.mlkbankoAmount,
       0
     );
     const totalRegistrationFees = event.participants.reduce(
-      (sum, p) => sum + p.registrationFee,
+      (sum: number, p: { registrationFee: number }) => sum + p.registrationFee,
       0
     );
-    const totalExpenses = event.expenses.reduce((sum, e) => sum + e.amount, 0);
+    const totalExpenses = event.expenses.reduce(
+      (sum: number, e: { amount: number }) => sum + e.amount,
+      0
+    );
     const distributedAmount = event.participants
-      .filter((p) => p.distributionStatus === "DISTRIBUTED")
-      .reduce((sum, p) => sum + p.mlkbankoAmount, 0);
+      .filter((p: any) => p.distributionStatus === "DISTRIBUTED")
+      .reduce(
+        (sum: number, p: { mlkbankoAmount: number }) => sum + p.mlkbankoAmount,
+        0
+      );
     const certificateFees = totalParticipants * 200;
 
     if (format === "csv") {
