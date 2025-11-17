@@ -7,7 +7,7 @@ import { DistributionStatus } from "@/types";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Authenticate user
@@ -27,7 +27,8 @@ export async function PATCH(
     );
     if (permissionError) return permissionError;
 
-    const { id } = params;
+    // Await params
+    const { id } = await context.params;
     const body = await request.json();
     const { distributionStatus } = body;
 
