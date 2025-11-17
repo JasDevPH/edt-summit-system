@@ -45,7 +45,7 @@ export const GET = requireAuth(async (request: NextRequest, user) => {
 
     // Calculate total amount
     const totalAmount = expenses.reduce(
-      (sum, expense) => sum + expense.amount,
+      (sum: number, expense: { amount: number }) => sum + expense.amount,
       0
     );
 
