@@ -1,0 +1,111 @@
+// FILE: prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  IT
+  FACILITATOR
+  FINANCE
+  STAFF
+}
+
+enum RegistrationSource {
+  PRE_REGISTRATION
+  ONSITE
+  MOBILE_APP
+}
+
+enum DistributionStatus {
+  PENDING
+  DISTRIBUTED
+  FAILED
+}
+
+enum ParticipantType {
+  NEW
+  OLD
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdEvents Event[]
+  participants  Participant[]
+  expenses      Expense[]
+}
+
+model Event {
+  id                      String        @id @default(uuid())
+  facilitator             String
+  date                    DateTime
+  preRegLink              String        @unique
+  isPreRegOpen            Boolean       @default(true)
+  defaultMlkbankoAmount   Float         @default(500)
+  defaultRegistrationFee  Float         @default(100)
+  totalCryptoReceived     Float         @default(0)
+  createdAt               DateTime      @default(now())
+  
+  participants Participant[]
+  expenses     Expense[]
+  
+  createdBy    User          @relation(fields: [createdById], references: [id])
+  createdById  String
+
+  @@index([date])
+  @@index([preRegLink])
+}
+
+model Participant {
+  id                 String               @id @default(uuid())
+  fullname           String
+  email              String?
+  phoneNumber        String?
+  homeAddress        String?
+  birthday           DateTime?
+  participantType    ParticipantType      @default(NEW)
+  yoroiAddress       String
+  qrCodeUrl          String?
+  mlkbankoAmount     Float
+  registrationFee    Float
+  paymentProofUrl    String?
+  registrationSource RegistrationSource
+  distributionStatus DistributionStatus   @default(PENDING)
+  createdAt          DateTime             @default(now())
+
+  event              Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId            String
+
+  createdBy          User?                @relation(fields: [createdById], references: [id])
+  createdById        String?
+
+  @@index([fullname])
+  @@index([email])
+  @@index([eventId])
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  description String
+  amount      Float
+  receiptUrl  String?
+  createdAt   DateTime @default(now())
+
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId     String
+
+  addedBy     User     @relation(fields: [addedById], references: [id])
+  addedById   String
+}

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Event" ADD COLUMN     "defaultMlkbankoAmount" DOUBLE PRECISION NOT NULL DEFAULT 500,
+ADD COLUMN     "defaultRegistrationFee" DOUBLE PRECISION NOT NULL DEFAULT 100;
