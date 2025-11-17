@@ -1,7 +1,7 @@
 // FILE: app/api/prereg/submit/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { ParticipantType } from "@prisma/client";
+import { ParticipantType } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,6 +73,18 @@ export async function POST(request: NextRequest) {
             success: false,
             message:
               "Fullname and participant type are required for all participants",
+          },
+          { status: 400 }
+        );
+      }
+
+      // Validate participant type
+      const validTypes: ParticipantType[] = ["NEW", "OLD"];
+      if (!validTypes.includes(participantType)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Participant type must be either NEW or OLD",
           },
           { status: 400 }
         );
