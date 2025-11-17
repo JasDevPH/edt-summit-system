@@ -13,7 +13,7 @@ import { useAppSelector } from "@/store/store";
 import { format } from "date-fns";
 import ParticipantFormModal from "@/components/forms/ParticipantFormModal";
 import ParticipantViewModal from "@/components/modals/ParticipantViewModal";
-import { Participant, DistributionStatus } from "@/types";
+import { Participant, DistributionStatus, RegistrationSource } from "@/types";
 
 export default function ParticipantsPage() {
   const params = useParams();
@@ -171,7 +171,7 @@ export default function ParticipantsPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-sm text-gray-600 mb-1">Total MLKBANKO</p>
           <p className="text-3xl font-bold text-green-600">
-            €{participantsData?.totals.mlkbanko?.toLocaleString() || 0}
+            ₱{participantsData?.totals.mlkbanko?.toLocaleString() || 0}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
@@ -347,13 +347,13 @@ function ParticipantRow({
     setShowStatusMenu(false);
   };
 
-  const statusColors = {
+  const statusColors: Record<DistributionStatus, string> = {
     PENDING: "bg-yellow-100 text-yellow-800",
     DISTRIBUTED: "bg-green-100 text-green-800",
     FAILED: "bg-red-100 text-red-800",
   };
 
-  const sourceColors = {
+  const sourceColors: Record<RegistrationSource, string> = {
     PRE_REGISTRATION: "bg-blue-100 text-blue-800",
     ONSITE: "bg-purple-100 text-purple-800",
     MOBILE_APP: "bg-indigo-100 text-indigo-800",
@@ -379,7 +379,7 @@ function ParticipantRow({
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        €{participant.mlkbankoAmount.toLocaleString()}
+        ₱{participant.mlkbankoAmount.toLocaleString()}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
         ₱{participant.registrationFee.toLocaleString()}
