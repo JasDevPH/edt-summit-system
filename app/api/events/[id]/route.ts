@@ -97,14 +97,17 @@ export async function GET(
     // Calculate totals
     const totalParticipants = event.participants.length;
     const totalMlkbanko = event.participants.reduce(
-      (sum, p) => sum + p.mlkbankoAmount,
+      (sum: number, p) => sum + p.mlkbankoAmount,
       0
     );
     const totalRegistrationFees = event.participants.reduce(
-      (sum, p) => sum + p.registrationFee,
+      (sum: number, p) => sum + p.registrationFee,
       0
     );
-    const totalExpenses = event.expenses.reduce((sum, e) => sum + e.amount, 0);
+    const totalExpenses = event.expenses.reduce(
+      (sum: number, e) => sum + e.amount,
+      0
+    );
 
     return NextResponse.json(
       {
