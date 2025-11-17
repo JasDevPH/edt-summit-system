@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // FILE: app/prereg/[link]/page.tsx
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,7 +16,9 @@ type EventData = {
 };
 
 type ParticipantForm = {
-  fullname: string;
+  lastname: string;
+  firstname: string;
+  middlename: string;
   email: string;
   phoneNumber: string;
   homeAddress: string;
@@ -58,7 +60,9 @@ export default function PreRegistrationPage() {
 
   const [participants, setParticipants] = useState<ParticipantForm[]>([
     {
-      fullname: "",
+      lastname: "",
+      firstname: "",
+      middlename: "",
       email: "",
       phoneNumber: "",
       homeAddress: "",
@@ -104,7 +108,9 @@ export default function PreRegistrationPage() {
           setEvent(data.event);
           setParticipants([
             {
-              fullname: "",
+              lastname: "",
+              firstname: "",
+              middlename: "",
               email: "",
               phoneNumber: "",
               homeAddress: "",
@@ -129,6 +135,16 @@ export default function PreRegistrationPage() {
 
     fetchEvent();
   }, [link]);
+
+  // Parse fullname into components
+  const parseFullname = (fullname: string) => {
+    const parts = fullname.split(",");
+    const lastname = parts[0]?.trim() || "";
+    const firstAndMiddle = parts[1]?.trim().split(" ") || [];
+    const firstname = firstAndMiddle[0] || "";
+    const middlename = firstAndMiddle.slice(1).join(" ") || "";
+    return { lastname, firstname, middlename };
+  };
 
   const handleSearch = async (index: number) => {
     const query = searchQuery[index];
@@ -167,10 +183,16 @@ export default function PreRegistrationPage() {
     index: number,
     participant: SearchResult
   ) => {
+    const { lastname, firstname, middlename } = parseFullname(
+      participant.fullname
+    );
+
     const newParticipants = [...participants];
     newParticipants[index] = {
       ...newParticipants[index],
-      fullname: participant.fullname,
+      lastname,
+      firstname,
+      middlename,
       email: participant.email || "",
       phoneNumber: participant.phoneNumber || "",
       homeAddress: participant.homeAddress || "",
@@ -328,7 +350,6 @@ export default function PreRegistrationPage() {
       formData.append("folder", folder);
       formData.append("resourceType", "image");
 
-      // Use the public prereg upload endpoint (no auth required)
       const response = await fetch("/api/prereg/upload", {
         method: "POST",
         body: formData,
@@ -352,7 +373,9 @@ export default function PreRegistrationPage() {
     setParticipants([
       ...participants,
       {
-        fullname: "",
+        lastname: "",
+        firstname: "",
+        middlename: "",
         email: "",
         phoneNumber: "",
         homeAddress: "",
@@ -397,8 +420,8 @@ export default function PreRegistrationPage() {
     for (let i = 0; i < participants.length; i++) {
       const participant = participants[i];
 
-      if (!participant.fullname) {
-        alert(`Participant ${i + 1}: Full name is required`);
+      if (!participant.lastname || !participant.firstname) {
+        alert(`Participant ${i + 1}: Last name and first name are required`);
         return;
       }
 
@@ -419,7 +442,6 @@ export default function PreRegistrationPage() {
         return;
       }
     } else {
-      // Separate mode - each participant needs their own
       for (let i = 0; i < participants.length; i++) {
         if (!paymentProofFiles[i] && !participants[i].paymentProofUrl) {
           alert(`Participant ${i + 1}: Payment proof is required`);
@@ -434,7 +456,6 @@ export default function PreRegistrationPage() {
     try {
       let groupPaymentProofUrl = "";
 
-      // Upload group payment proof if in GROUP mode
       if (
         isBatchMode &&
         paymentProofMode === "GROUP" &&
@@ -444,7 +465,7 @@ export default function PreRegistrationPage() {
           (await uploadImage(groupPaymentProofFile, "payment-proofs")) || "";
       }
 
-      // Upload all images
+      // Upload all images and combine name fields
       const participantsWithUrls = await Promise.all(
         participants.map(async (participant, index) => {
           let qrCodeUrl = participant.qrCodeUrl;
@@ -455,7 +476,6 @@ export default function PreRegistrationPage() {
               (await uploadImage(qrCodeFiles[index]!, "qr-codes")) || "";
           }
 
-          // Use group payment proof URL if in GROUP mode, otherwise upload individual
           if (paymentProofMode === "GROUP" && groupPaymentProofUrl) {
             paymentProofUrl = groupPaymentProofUrl;
           } else if (paymentProofFiles[index]) {
@@ -466,9 +486,22 @@ export default function PreRegistrationPage() {
               )) || "";
           }
 
+          // Combine name fields into fullname format: "Lastname, Firstname Middlename"
+          const fullname = participant.middlename
+            ? `${participant.lastname}, ${participant.firstname} ${participant.middlename}`
+            : `${participant.lastname}, ${participant.firstname}`;
+
           return {
-            ...participant,
+            fullname,
+            email: participant.email,
+            phoneNumber: participant.phoneNumber,
+            homeAddress: participant.homeAddress,
+            birthday: participant.birthday,
+            participantType: participant.participantType,
+            yoroiAddress: participant.yoroiAddress,
             qrCodeUrl,
+            mlkbankoAmount: participant.mlkbankoAmount,
+            registrationFee: participant.registrationFee,
             paymentProofUrl,
           };
         })
@@ -565,7 +598,7 @@ export default function PreRegistrationPage() {
           </div>
         </div>
 
-        {/* Registration Mode Toggle */}
+        {/* Registration Mode Toggle - keeping existing code */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -589,7 +622,7 @@ export default function PreRegistrationPage() {
             </button>
           </div>
 
-          {/* Payment Proof Mode (only in batch mode) */}
+          {/* Payment Proof Mode */}
           {isBatchMode && (
             <div className="pt-4 border-t border-gray-200">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
@@ -631,7 +664,7 @@ export default function PreRegistrationPage() {
           )}
         </div>
 
-        {/* Group Payment Proof Upload (only in batch mode with GROUP option) */}
+        {/* Group Payment Proof Upload - keeping existing code */}
         {isBatchMode && paymentProofMode === "GROUP" && (
           <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -778,7 +811,7 @@ export default function PreRegistrationPage() {
                 </div>
               </div>
 
-              {/* Search for OLD participants */}
+              {/* Search for OLD participants - keeping existing code */}
               {participant.participantType === "OLD" && (
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -831,28 +864,78 @@ export default function PreRegistrationPage() {
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
+              {/* Form Fields - UPDATED with separated name fields */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
                   <label
-                    htmlFor={`fullname-${index}`}
+                    htmlFor={`lastname-${index}`}
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Full Name *
+                    Last Name *
                   </label>
                   <input
-                    id={`fullname-${index}`}
+                    id={`lastname-${index}`}
                     type="text"
                     required
-                    value={participant.fullname}
+                    value={participant.lastname}
                     onChange={(e) =>
-                      handleParticipantChange(index, "fullname", e.target.value)
+                      handleParticipantChange(index, "lastname", e.target.value)
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Juan Dela Cruz"
+                    placeholder="Dela Cruz"
                   />
                 </div>
 
+                <div>
+                  <label
+                    htmlFor={`firstname-${index}`}
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    First Name *
+                  </label>
+                  <input
+                    id={`firstname-${index}`}
+                    type="text"
+                    required
+                    value={participant.firstname}
+                    onChange={(e) =>
+                      handleParticipantChange(
+                        index,
+                        "firstname",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="Juan"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor={`middlename-${index}`}
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Middle Name
+                  </label>
+                  <input
+                    id={`middlename-${index}`}
+                    type="text"
+                    value={participant.middlename}
+                    onChange={(e) =>
+                      handleParticipantChange(
+                        index,
+                        "middlename",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="Santos (optional)"
+                  />
+                </div>
+              </div>
+
+              {/* Rest of the form fields - email, phone, address, birthday, etc. */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor={`email-${index}`}
@@ -962,6 +1045,9 @@ export default function PreRegistrationPage() {
                   </div>
                 )}
 
+                {/* QR Code and Payment Proof sections remain the same... */}
+                {/* Continue with rest of form - keeping existing QR code and payment proof upload sections */}
+
                 {participant.participantType === "OLD" && (
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1036,7 +1122,7 @@ export default function PreRegistrationPage() {
                   </div>
                 )}
 
-                {/* Individual Payment Proof (only if SEPARATE mode or not in batch) */}
+                {/* Individual Payment Proof */}
                 {(!isBatchMode || paymentProofMode === "SEPARATE") && (
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
