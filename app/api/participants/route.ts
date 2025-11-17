@@ -200,11 +200,11 @@ export const GET = requireAuth(async (request: NextRequest, user) => {
 
     // Calculate totals
     const totalMlkbanko = participants.reduce(
-      (sum, p) => sum + p.mlkbankoAmount,
+      (sum: number, p: { mlkbankoAmount: number }) => sum + p.mlkbankoAmount,
       0
     );
     const totalRegistrationFees = participants.reduce(
-      (sum, p) => sum + p.registrationFee,
+      (sum: number, p: { registrationFee: number }) => sum + p.registrationFee,
       0
     );
 
