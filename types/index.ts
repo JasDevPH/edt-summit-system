@@ -1,12 +1,20 @@
 // FILE: types/index.ts
-import {
+
+// Import types from Prisma Client (these are generated after running `npx prisma generate`)
+export type {
   Role,
   RegistrationSource,
   DistributionStatus,
   ParticipantType,
 } from "@prisma/client";
 
-export { Role, RegistrationSource, DistributionStatus, ParticipantType };
+// Re-export for convenience
+import type {
+  Role,
+  RegistrationSource,
+  DistributionStatus,
+  ParticipantType,
+} from "@prisma/client";
 
 export type User = {
   id: string;
