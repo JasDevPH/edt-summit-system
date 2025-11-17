@@ -97,15 +97,15 @@ export async function GET(
     // Calculate totals
     const totalParticipants = event.participants.length;
     const totalMlkbanko = event.participants.reduce(
-      (sum: number, p) => sum + p.mlkbankoAmount,
+      (sum: number, p: { mlkbankoAmount: number }) => sum + p.mlkbankoAmount,
       0
     );
     const totalRegistrationFees = event.participants.reduce(
-      (sum: number, p) => sum + p.registrationFee,
+      (sum: number, p: { registrationFee: number }) => sum + p.registrationFee,
       0
     );
     const totalExpenses = event.expenses.reduce(
-      (sum: number, e) => sum + e.amount,
+      (sum: number, e: { amount: number }) => sum + e.amount,
       0
     );
 
