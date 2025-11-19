@@ -36,14 +36,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">EDT Summit</h1>
-            <p className="text-gray-600 mt-2">Management System</p>
+        {/* Logo and Title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl mb-4 shadow-lg">
+            <span className="text-white font-bold text-2xl">ED</span>
           </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back
+          </h1>
+          <p className="text-gray-600">Sign in to your EDT Summit account</p>
+        </div>
 
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -59,7 +66,7 @@ export default function LoginPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
                 placeholder="admin@example.com"
               />
             </div>
@@ -78,7 +85,7 @@ export default function LoginPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
                 placeholder="••••••••"
               />
             </div>
@@ -86,44 +93,33 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 rounded-lg font-semibold hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
             >
               {loginMutation.isPending ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Logging in...
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Signing in...
                 </span>
               ) : (
-                "Login"
+                "Sign In"
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Contact your administrator to create an account
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <p className="text-sm text-center text-gray-600">
+              Need access?{" "}
+              <span className="font-medium text-gray-900">
+                Contact your administrator
+              </span>
             </p>
           </div>
         </div>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-gray-500 mt-8">
+          © 2024 EDT Summit Management System
+        </p>
       </div>
     </div>
   );

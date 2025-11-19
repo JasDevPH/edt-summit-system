@@ -58,7 +58,6 @@ export default function ExpenseFormModal({
   }, [expense, isOpen]);
 
   const handleFileSelect = (file: File) => {
-    // Validate file size (10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       dispatch(
@@ -70,7 +69,6 @@ export default function ExpenseFormModal({
       return;
     }
 
-    // Validate file type
     const allowedTypes = [
       "image/jpeg",
       "image/jpg",
@@ -153,7 +151,6 @@ export default function ExpenseFormModal({
     try {
       let receiptUrl = formData.receiptUrl;
 
-      // Only upload if NEW file is selected
       if (receiptFile) {
         receiptUrl = (await uploadReceipt(receiptFile)) || "";
       }
@@ -210,15 +207,23 @@ export default function ExpenseFormModal({
     createExpense.isPending || updateExpense.isPending || uploading;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 my-8">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
-            {expense ? "Edit Expense" : "Add Expense"}
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 my-8 transform transition-all">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b-2 border-gray-200">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {expense ? "Edit Expense" : "Add Expense"}
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {expense
+                ? "Update expense details"
+                : "Record a new expense for this event"}
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-all duration-150"
           >
             <svg
               className="w-6 h-6"
@@ -236,54 +241,93 @@ export default function ExpenseFormModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Description Field */}
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-semibold text-gray-700 mb-2"
             >
-              Description *
+              Description <span className="text-red-500">*</span>
             </label>
-            <textarea
-              id="description"
-              name="description"
-              required
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-              placeholder="e.g., Venue rental, Food catering, Transportation"
-            />
+            <div className="relative">
+              <div className="absolute top-3 left-3 pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <textarea
+                id="description"
+                name="description"
+                required
+                rows={3}
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-150"
+                placeholder="e.g., Venue rental, Food catering, Transportation"
+              />
+            </div>
           </div>
 
+          {/* Amount Field */}
           <div>
             <label
               htmlFor="amount"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-semibold text-gray-700 mb-2"
             >
-              Amount (₱) *
+              Amount (₱) <span className="text-red-500">*</span>
             </label>
-            <input
-              id="amount"
-              name="amount"
-              type="number"
-              step="0.01"
-              required
-              value={formData.amount}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="1000.00"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                id="amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                required
+                value={formData.amount}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                placeholder="1000.00"
+              />
+            </div>
           </div>
 
+          {/* Receipt Upload Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Receipt Image{" "}
-              {receiptFile && <span className="text-indigo-600">(New)</span>}
+              {receiptFile && (
+                <span className="text-indigo-600 font-bold">(New)</span>
+              )}
             </label>
             {receiptPreview ? (
               <div className="relative">
-                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="relative w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
                   <Image
                     src={receiptPreview}
                     alt="Receipt Preview"
@@ -295,7 +339,7 @@ export default function ExpenseFormModal({
                 <button
                   type="button"
                   onClick={removeReceipt}
-                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                  className="absolute top-3 right-3 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-lg transition-all duration-150"
                 >
                   <svg
                     className="w-4 h-4"
@@ -313,10 +357,10 @@ export default function ExpenseFormModal({
                 </button>
               </div>
             ) : (
-              <label className="cursor-pointer">
-                <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 text-center">
+              <label className="cursor-pointer block">
+                <div className="w-full px-4 py-10 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
                   <svg
-                    className="w-8 h-8 mx-auto text-gray-400 mb-2"
+                    className="w-12 h-12 mx-auto text-gray-400 mb-3"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -328,10 +372,12 @@ export default function ExpenseFormModal({
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-gray-600 font-medium mb-1">
                     Click to upload receipt
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">Max 10MB</p>
+                  <p className="text-xs text-gray-500">
+                    Max 10MB • JPEG, PNG, WEBP, GIF
+                  </p>
                 </div>
                 <input
                   type="file"
@@ -346,27 +392,36 @@ export default function ExpenseFormModal({
             )}
           </div>
 
-          <div className="flex gap-3 pt-4">
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-6 border-t-2 border-gray-200">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50"
+              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-150 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-gray-400 transition-colors"
+              className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-indigo-500/30"
             >
-              {uploading
-                ? "Uploading receipt..."
-                : createExpense.isPending || updateExpense.isPending
-                ? "Saving..."
-                : expense
-                ? "Update Expense"
-                : "Add Expense"}
+              {uploading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Uploading receipt...
+                </span>
+              ) : createExpense.isPending || updateExpense.isPending ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Saving...
+                </span>
+              ) : expense ? (
+                "Update Expense"
+              ) : (
+                "Add Expense"
+              )}
             </button>
           </div>
         </form>

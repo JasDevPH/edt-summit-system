@@ -91,7 +91,6 @@ export default function PreRegistrationPage() {
     (string | null)[]
   >([null]);
 
-  // Group payment proof (single file for all participants)
   const [groupPaymentProofFile, setGroupPaymentProofFile] =
     useState<File | null>(null);
   const [groupPaymentProofPreview, setGroupPaymentProofPreview] = useState<
@@ -136,7 +135,6 @@ export default function PreRegistrationPage() {
     fetchEvent();
   }, [link]);
 
-  // Parse fullname into components
   const parseFullname = (fullname: string) => {
     const parts = fullname.split(",");
     const lastname = parts[0]?.trim() || "";
@@ -416,7 +414,6 @@ export default function PreRegistrationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all participants
     for (let i = 0; i < participants.length; i++) {
       const participant = participants[i];
 
@@ -435,7 +432,6 @@ export default function PreRegistrationPage() {
       }
     }
 
-    // Validate payment proofs
     if (isBatchMode && paymentProofMode === "GROUP") {
       if (!groupPaymentProofFile) {
         alert("Please upload a group payment proof for all participants");
@@ -465,7 +461,6 @@ export default function PreRegistrationPage() {
           (await uploadImage(groupPaymentProofFile, "payment-proofs")) || "";
       }
 
-      // Upload all images and combine name fields
       const participantsWithUrls = await Promise.all(
         participants.map(async (participant, index) => {
           let qrCodeUrl = participant.qrCodeUrl;
@@ -486,7 +481,6 @@ export default function PreRegistrationPage() {
               )) || "";
           }
 
-          // Combine name fields into fullname format: "Lastname, Firstname Middlename"
           const fullname = participant.middlename
             ? `${participant.lastname}, ${participant.firstname} ${participant.middlename}`
             : `${participant.lastname}, ${participant.firstname}`;
@@ -509,7 +503,6 @@ export default function PreRegistrationPage() {
 
       setUploadingImages(false);
 
-      // Submit registration
       const response = await fetch("/api/prereg/submit", {
         method: "POST",
         headers: {
@@ -538,10 +531,10 @@ export default function PreRegistrationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-          <p className="mt-4 text-gray-600">Loading event details...</p>
+          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading event details...</p>
         </div>
       </div>
     );
@@ -549,21 +542,23 @@ export default function PreRegistrationPage() {
 
   if (error || !event) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <svg
-            className="w-16 h-16 mx-auto text-red-600 mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-10 h-10 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Event Not Found
           </h1>
@@ -577,69 +572,121 @@ export default function PreRegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            EDT / Mini Summit Pre-Registration
-          </h1>
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-6 border-t-4 border-indigo-600">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              EDT / Mini Summit Pre-Registration
+            </h1>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Facilitator</p>
+            <div className="p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl">
+              <p className="text-sm text-indigo-600 font-medium mb-1">
+                Facilitator
+              </p>
               <p className="font-semibold text-gray-900">{event.facilitator}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Event Date</p>
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+              <p className="text-sm text-purple-600 font-medium mb-1">
+                Event Date
+              </p>
               <p className="font-semibold text-gray-900">
-                {new Date(event.date).toLocaleDateString()}
+                {new Date(event.date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Registration Mode Toggle - keeping existing code */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        {/* Registration Mode Toggle */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                  />
+                </svg>
                 Registration Mode
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 mt-1">
                 Switch between single and batch registration
               </p>
             </div>
             <button
               type="button"
               onClick={() => setIsBatchMode(!isBatchMode)}
-              className={`px-4 py-2 rounded-lg font-medium ${
+              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-150 shadow-md ${
                 isBatchMode
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-200 text-gray-700"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
-              {isBatchMode ? "Batch Mode" : "Single Mode"}
+              {isBatchMode ? "✓ Batch Mode" : "Single Mode"}
             </button>
           </div>
 
           {/* Payment Proof Mode */}
           {isBatchMode && (
-            <div className="pt-4 border-t border-gray-200">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
+            <div className="pt-4 border-t-2 border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                  />
+                </svg>
                 Payment Proof Mode
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
                   onClick={() => setPaymentProofMode("SEPARATE")}
-                  className={`px-4 py-3 border-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-4 border-2 rounded-xl font-medium transition-all duration-150 ${
                     paymentProofMode === "SEPARATE"
-                      ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                      ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md"
                       : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                   }`}
                 >
                   <div className="text-center">
-                    <p className="font-semibold">Separate</p>
+                    <p className="font-bold text-lg">Separate</p>
                     <p className="text-xs mt-1">
                       Each participant uploads their own
                     </p>
@@ -648,14 +695,14 @@ export default function PreRegistrationPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentProofMode("GROUP")}
-                  className={`px-4 py-3 border-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-4 border-2 rounded-xl font-medium transition-all duration-150 ${
                     paymentProofMode === "GROUP"
-                      ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                      ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md"
                       : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                   }`}
                 >
                   <div className="text-center">
-                    <p className="font-semibold">Group</p>
+                    <p className="font-bold text-lg">Group</p>
                     <p className="text-xs mt-1">One payment proof for all</p>
                   </div>
                 </button>
@@ -664,19 +711,38 @@ export default function PreRegistrationPage() {
           )}
         </div>
 
-        {/* Group Payment Proof Upload - keeping existing code */}
+        {/* Group Payment Proof Upload */}
         {isBatchMode && paymentProofMode === "GROUP" && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Group Payment Proof *
-            </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Upload one payment proof for all participants in this batch
-            </p>
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border-2 border-indigo-200">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Group Payment Proof <span className="text-red-500">*</span>
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Upload one payment proof for all participants in this batch
+                </p>
+              </div>
+            </div>
 
             {groupPaymentProofPreview ? (
               <div className="relative w-full h-64">
-                <div className="relative w-full h-full bg-gray-100 rounded-lg overflow-hidden">
+                <div className="relative w-full h-full bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
                   <Image
                     src={groupPaymentProofPreview}
                     alt="Group Payment Proof Preview"
@@ -688,7 +754,7 @@ export default function PreRegistrationPage() {
                 <button
                   type="button"
                   onClick={removeGroupPaymentProof}
-                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700"
+                  className="absolute top-3 right-3 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-lg transition-all duration-150"
                 >
                   <svg
                     className="w-5 h-5"
@@ -706,10 +772,10 @@ export default function PreRegistrationPage() {
                 </button>
               </div>
             ) : (
-              <label className="cursor-pointer">
-                <div className="w-full px-4 py-12 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 text-center">
+              <label className="cursor-pointer block">
+                <div className="w-full px-4 py-12 border-2 border-dashed border-indigo-300 rounded-xl hover:bg-indigo-50 text-center transition-all duration-150">
                   <svg
-                    className="w-12 h-12 mx-auto text-gray-400 mb-3"
+                    className="w-16 h-16 mx-auto text-indigo-400 mb-3"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -721,13 +787,13 @@ export default function PreRegistrationPage() {
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <p className="text-gray-600 font-medium">
+                  <p className="text-indigo-700 font-semibold text-lg mb-2">
                     Click to upload group payment proof
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-600 mb-1">
                     This will be used for all participants below
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500">
                     Max 10MB • JPEG, PNG, WEBP, GIF
                   </p>
                 </div>
@@ -748,16 +814,41 @@ export default function PreRegistrationPage() {
         {/* Registration Form */}
         <form onSubmit={handleSubmit}>
           {participants.map((participant, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <div
+              key={index}
+              className="bg-white rounded-2xl shadow-lg p-8 mb-6 border-l-4 border-indigo-600"
+            >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Participant {participants.length > 1 ? `#${index + 1}` : ""}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
+                    {participants.length > 1 ? (
+                      index + 1
+                    ) : (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Participant{" "}
+                    {participants.length > 1 ? `#${index + 1}` : "Information"}
+                  </h2>
+                </div>
                 {participants.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeParticipant(index)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all duration-150"
                   >
                     <svg
                       className="w-6 h-6"
@@ -778,8 +869,8 @@ export default function PreRegistrationPage() {
 
               {/* Participant Type Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Participant Type *
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Participant Type <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
@@ -787,34 +878,47 @@ export default function PreRegistrationPage() {
                     onClick={() =>
                       handleParticipantChange(index, "participantType", "NEW")
                     }
-                    className={`px-4 py-3 border-2 rounded-lg font-medium transition-colors ${
+                    className={`px-4 py-4 border-2 rounded-xl font-semibold transition-all duration-150 ${
                       participant.participantType === "NEW"
-                        ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                        ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md"
                         : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                     }`}
                   >
-                    New Member
+                    ✨ New Member
                   </button>
                   <button
                     type="button"
                     onClick={() =>
                       handleParticipantChange(index, "participantType", "OLD")
                     }
-                    className={`px-4 py-3 border-2 rounded-lg font-medium transition-colors ${
+                    className={`px-4 py-4 border-2 rounded-xl font-semibold transition-all duration-150 ${
                       participant.participantType === "OLD"
-                        ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                        ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md"
                         : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                     }`}
                   >
-                    Returning Member
+                    🔄 Returning Member
                   </button>
                 </div>
               </div>
 
-              {/* Search for OLD participants - keeping existing code */}
+              {/* Search for OLD participants */}
               {participant.participantType === "OLD" && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
                     Search Your Name or Email
                   </label>
                   <div className="flex gap-2">
@@ -826,30 +930,37 @@ export default function PreRegistrationPage() {
                         newQuery[index] = e.target.value;
                         setSearchQuery(newQuery);
                       }}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       placeholder="Enter at least 3 characters..."
                     />
                     <button
                       type="button"
                       onClick={() => handleSearch(index)}
                       disabled={searching[index]}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-gray-400"
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition-all duration-150 shadow-md"
                     >
-                      {searching[index] ? "Searching..." : "Search"}
+                      {searching[index] ? (
+                        <span className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Searching...
+                        </span>
+                      ) : (
+                        "Search"
+                      )}
                     </button>
                   </div>
 
                   {/* Search Results */}
                   {searchResults[index] && searchResults[index].length > 0 && (
-                    <div className="mt-4 max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
+                    <div className="mt-4 max-h-48 overflow-y-auto border-2 border-indigo-200 rounded-xl bg-white">
                       {searchResults[index].map((result) => (
                         <button
                           key={result.id}
                           type="button"
                           onClick={() => handleSelectParticipant(index, result)}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-100 border-b border-gray-200 last:border-b-0"
+                          className="w-full px-4 py-3 text-left hover:bg-indigo-50 border-b border-gray-200 last:border-b-0 transition-all duration-150"
                         >
-                          <p className="font-medium text-gray-900">
+                          <p className="font-semibold text-gray-900">
                             {result.fullname}
                           </p>
                           {result.email && (
@@ -864,340 +975,355 @@ export default function PreRegistrationPage() {
                 </div>
               )}
 
-              {/* Form Fields - UPDATED with separated name fields */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <label
-                    htmlFor={`lastname-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Last Name *
-                  </label>
-                  <input
-                    id={`lastname-${index}`}
-                    type="text"
-                    required
-                    value={participant.lastname}
-                    onChange={(e) =>
-                      handleParticipantChange(index, "lastname", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Dela Cruz"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor={`firstname-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    First Name *
-                  </label>
-                  <input
-                    id={`firstname-${index}`}
-                    type="text"
-                    required
-                    value={participant.firstname}
-                    onChange={(e) =>
-                      handleParticipantChange(
-                        index,
-                        "firstname",
-                        e.target.value
-                      )
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Juan"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor={`middlename-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Middle Name
-                  </label>
-                  <input
-                    id={`middlename-${index}`}
-                    type="text"
-                    value={participant.middlename}
-                    onChange={(e) =>
-                      handleParticipantChange(
-                        index,
-                        "middlename",
-                        e.target.value
-                      )
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Santos (optional)"
-                  />
-                </div>
-              </div>
-
-              {/* Rest of the form fields - email, phone, address, birthday, etc. */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor={`email-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id={`email-${index}`}
-                    type="email"
-                    value={participant.email}
-                    onChange={(e) =>
-                      handleParticipantChange(index, "email", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="juan@example.com"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor={`phoneNumber-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    id={`phoneNumber-${index}`}
-                    type="text"
-                    value={participant.phoneNumber}
-                    onChange={(e) =>
-                      handleParticipantChange(
-                        index,
-                        "phoneNumber",
-                        e.target.value
-                      )
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="09123456789"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor={`homeAddress-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Home Address
-                  </label>
-                  <input
-                    id={`homeAddress-${index}`}
-                    type="text"
-                    value={participant.homeAddress}
-                    onChange={(e) =>
-                      handleParticipantChange(
-                        index,
-                        "homeAddress",
-                        e.target.value
-                      )
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="123 Main St, City"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor={`birthday-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Birthday
-                  </label>
-                  <input
-                    id={`birthday-${index}`}
-                    type="date"
-                    value={participant.birthday}
-                    onChange={(e) =>
-                      handleParticipantChange(index, "birthday", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-
-                {participant.participantType === "OLD" && (
+              {/* Form Fields */}
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label
-                      htmlFor={`yoroiAddress-${index}`}
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      htmlFor={`lastname-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Yoroi Address *
+                      Last Name <span className="text-red-500">*</span>
                     </label>
                     <input
-                      id={`yoroiAddress-${index}`}
+                      id={`lastname-${index}`}
                       type="text"
-                      required={participant.participantType === "OLD"}
-                      value={participant.yoroiAddress}
+                      required
+                      value={participant.lastname}
                       onChange={(e) =>
                         handleParticipantChange(
                           index,
-                          "yoroiAddress",
+                          "lastname",
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      placeholder="addr1..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                      placeholder="Dela Cruz"
                     />
                   </div>
-                )}
 
-                {/* QR Code and Payment Proof sections remain the same... */}
-                {/* Continue with rest of form - keeping existing QR code and payment proof upload sections */}
-
-                {participant.participantType === "OLD" && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      QR Code Image{" "}
-                      {qrCodeFiles[index] && (
-                        <span className="text-indigo-600">(New)</span>
-                      )}
+                  <div>
+                    <label
+                      htmlFor={`firstname-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      First Name <span className="text-red-500">*</span>
                     </label>
-                    {qrCodePreviews[index] ? (
-                      <div className="relative w-48 h-48">
-                        <div className="relative w-full h-full bg-gray-100 rounded-lg overflow-hidden">
-                          <Image
-                            src={qrCodePreviews[index]!}
-                            alt="QR Code Preview"
-                            fill
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index, "qrCode")}
-                          className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="cursor-pointer">
-                        <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 text-center">
-                          <svg
-                            className="w-8 h-8 mx-auto text-gray-400 mb-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <p className="text-sm text-gray-600">
-                            Click to upload QR code
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">Max 10MB</p>
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileSelect(index, file, "qrCode");
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                    )}
+                    <input
+                      id={`firstname-${index}`}
+                      type="text"
+                      required
+                      value={participant.firstname}
+                      onChange={(e) =>
+                        handleParticipantChange(
+                          index,
+                          "firstname",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                      placeholder="Juan"
+                    />
                   </div>
-                )}
 
-                {/* Individual Payment Proof */}
-                {(!isBatchMode || paymentProofMode === "SEPARATE") && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Payment Proof *{" "}
-                      {paymentProofFiles[index] && (
-                        <span className="text-indigo-600">(New)</span>
-                      )}
+                  <div>
+                    <label
+                      htmlFor={`middlename-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Middle Name
                     </label>
-                    {paymentProofPreviews[index] ? (
-                      <div className="relative w-full h-48">
-                        <div className="relative w-full h-full bg-gray-100 rounded-lg overflow-hidden">
-                          <Image
-                            src={paymentProofPreviews[index]!}
-                            alt="Payment Proof Preview"
-                            fill
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index, "paymentProof")}
-                          className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="cursor-pointer">
-                        <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 text-center">
-                          <svg
-                            className="w-8 h-8 mx-auto text-gray-400 mb-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <p className="text-sm text-gray-600">
-                            Click to upload payment proof
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">Max 10MB</p>
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          required={!participant.paymentProofUrl}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file)
-                              handleFileSelect(index, file, "paymentProof");
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                    )}
+                    <input
+                      id={`middlename-${index}`}
+                      type="text"
+                      value={participant.middlename}
+                      onChange={(e) =>
+                        handleParticipantChange(
+                          index,
+                          "middlename",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                      placeholder="Santos (optional)"
+                    />
                   </div>
-                )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor={`email-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Email
+                    </label>
+                    <input
+                      id={`email-${index}`}
+                      type="email"
+                      value={participant.email}
+                      onChange={(e) =>
+                        handleParticipantChange(index, "email", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                      placeholder="juan@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor={`phoneNumber-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Phone Number
+                    </label>
+                    <input
+                      id={`phoneNumber-${index}`}
+                      type="text"
+                      value={participant.phoneNumber}
+                      onChange={(e) =>
+                        handleParticipantChange(
+                          index,
+                          "phoneNumber",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                      placeholder="09123456789"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label
+                      htmlFor={`homeAddress-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Home Address
+                    </label>
+                    <input
+                      id={`homeAddress-${index}`}
+                      type="text"
+                      value={participant.homeAddress}
+                      onChange={(e) =>
+                        handleParticipantChange(
+                          index,
+                          "homeAddress",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                      placeholder="123 Main St, City"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor={`birthday-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Birthday
+                    </label>
+                    <input
+                      id={`birthday-${index}`}
+                      type="date"
+                      value={participant.birthday}
+                      onChange={(e) =>
+                        handleParticipantChange(
+                          index,
+                          "birthday",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                    />
+                  </div>
+
+                  {participant.participantType === "OLD" && (
+                    <div>
+                      <label
+                        htmlFor={`yoroiAddress-${index}`}
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        Yoroi Address <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id={`yoroiAddress-${index}`}
+                        type="text"
+                        required={participant.participantType === "OLD"}
+                        value={participant.yoroiAddress}
+                        onChange={(e) =>
+                          handleParticipantChange(
+                            index,
+                            "yoroiAddress",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                        placeholder="addr1..."
+                      />
+                    </div>
+                  )}
+
+                  {/* QR Code Upload for OLD participants */}
+                  {participant.participantType === "OLD" && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        QR Code Image{" "}
+                        {qrCodeFiles[index] && (
+                          <span className="text-indigo-600 font-bold">
+                            (New)
+                          </span>
+                        )}
+                      </label>
+                      {qrCodePreviews[index] ? (
+                        <div className="relative w-48 h-48">
+                          <div className="relative w-full h-full bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
+                            <Image
+                              src={qrCodePreviews[index]!}
+                              alt="QR Code Preview"
+                              fill
+                              className="object-contain"
+                              unoptimized
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index, "qrCode")}
+                            className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-lg transition-all duration-150"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer block">
+                          <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
+                            <svg
+                              className="w-10 h-10 mx-auto text-gray-400 mb-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <p className="text-sm text-gray-600 font-medium">
+                              Click to upload QR code
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Max 10MB
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleFileSelect(index, file, "qrCode");
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Individual Payment Proof */}
+                  {(!isBatchMode || paymentProofMode === "SEPARATE") && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Payment Proof <span className="text-red-500">*</span>{" "}
+                        {paymentProofFiles[index] && (
+                          <span className="text-indigo-600 font-bold">
+                            (New)
+                          </span>
+                        )}
+                      </label>
+                      {paymentProofPreviews[index] ? (
+                        <div className="relative w-full h-48">
+                          <div className="relative w-full h-full bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
+                            <Image
+                              src={paymentProofPreviews[index]!}
+                              alt="Payment Proof Preview"
+                              fill
+                              className="object-contain"
+                              unoptimized
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index, "paymentProof")}
+                            className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-lg transition-all duration-150"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer block">
+                          <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
+                            <svg
+                              className="w-10 h-10 mx-auto text-gray-400 mb-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <p className="text-sm text-gray-600 font-medium">
+                              Click to upload payment proof
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Max 10MB
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            required={!participant.paymentProofUrl}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file)
+                                handleFileSelect(index, file, "paymentProof");
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -1207,26 +1333,47 @@ export default function PreRegistrationPage() {
             <button
               type="button"
               onClick={addParticipant}
-              className="w-full py-3 border-2 border-dashed border-indigo-300 rounded-lg text-indigo-600 font-medium hover:bg-indigo-50 mb-6"
+              className="w-full py-4 border-2 border-dashed border-indigo-400 rounded-2xl text-indigo-700 font-bold text-lg hover:bg-indigo-50 mb-6 transition-all duration-150 flex items-center justify-center gap-2"
             >
-              + Add Another Participant
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Add Another Participant
             </button>
           )}
 
           {/* Submit Button */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-indigo-600">
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg hover:bg-indigo-700 disabled:bg-gray-400"
+              className="w-full py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 transition-all duration-150 shadow-lg shadow-indigo-500/30"
             >
-              {uploadingImages
-                ? "Uploading images..."
-                : submitting
-                ? "Submitting..."
-                : `Register ${participants.length} Participant${
-                    participants.length > 1 ? "s" : ""
-                  }`}
+              {uploadingImages ? (
+                <span className="flex items-center justify-center gap-3">
+                  <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Uploading images...
+                </span>
+              ) : submitting ? (
+                <span className="flex items-center justify-center gap-3">
+                  <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Submitting Registration...
+                </span>
+              ) : (
+                `Submit Registration (${participants.length} participant${
+                  participants.length > 1 ? "s" : ""
+                })`
+              )}
             </button>
           </div>
         </form>
