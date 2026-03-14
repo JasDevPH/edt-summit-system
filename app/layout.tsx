@@ -1,10 +1,11 @@
 // FILE: app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/components/providers/ReduxProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import Toast from "@/components/ui/Toast";
+import { ServiceWorkerRegistrar } from "@/components/providers/ServiceWorkerRegistrar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +17,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "EDT Summit Management System",
   description: "Manage events, participants, expenses, and financial reports",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "EDT Summit",
+  },
 };
 
 export default function RootLayout({
@@ -28,9 +41,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ServiceWorkerRegistrar />
         <ReduxProvider>
           <QueryProvider>
             <Toast />

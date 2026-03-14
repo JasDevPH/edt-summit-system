@@ -273,7 +273,7 @@ export default function ExpenseFormModal({
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-150"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-150 text-black"
                 placeholder="e.g., Venue rental, Food catering, Transportation"
               />
             </div>
@@ -311,7 +311,7 @@ export default function ExpenseFormModal({
                 required
                 value={formData.amount}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                 placeholder="1000.00"
               />
             </div>

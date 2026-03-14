@@ -5,6 +5,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const QrScannerModal = dynamic(
+  () => import("@/components/prereg/QrScannerModal"),
+  { ssr: false }
+);
 
 type EventData = {
   id: string;
@@ -96,6 +102,11 @@ export default function PreRegistrationPage() {
   const [groupPaymentProofPreview, setGroupPaymentProofPreview] = useState<
     string | null
   >(null);
+
+  const [scannerOpen, setScannerOpen] = useState<{
+    index: number;
+    mode: "scan" | "capture";
+  } | null>(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -1146,21 +1157,46 @@ export default function PreRegistrationPage() {
                       >
                         Yoroi Address <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        id={`yoroiAddress-${index}`}
-                        type="text"
-                        required={participant.participantType === "OLD"}
-                        value={participant.yoroiAddress}
-                        onChange={(e) =>
-                          handleParticipantChange(
-                            index,
-                            "yoroiAddress",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
-                        placeholder="addr1..."
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          id={`yoroiAddress-${index}`}
+                          type="text"
+                          required={participant.participantType === "OLD"}
+                          value={participant.yoroiAddress}
+                          onChange={(e) =>
+                            handleParticipantChange(
+                              index,
+                              "yoroiAddress",
+                              e.target.value
+                            )
+                          }
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                          placeholder="addr1..."
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setScannerOpen({ index, mode: "scan" })
+                          }
+                          className="px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-150 shadow-md flex items-center gap-1"
+                          title="Scan QR Code"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                            />
+                          </svg>
+                          <span className="hidden sm:inline text-sm font-semibold">Scan</span>
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -1207,10 +1243,16 @@ export default function PreRegistrationPage() {
                           </button>
                         </div>
                       ) : (
-                        <label className="cursor-pointer block">
-                          <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setScannerOpen({ index, mode: "capture" })
+                            }
+                            className="w-full px-4 py-8 border-2 border-dashed border-indigo-300 rounded-xl hover:bg-indigo-50 text-center transition-all duration-150"
+                          >
                             <svg
-                              className="w-10 h-10 mx-auto text-gray-400 mb-2"
+                              className="w-10 h-10 mx-auto text-indigo-400 mb-2"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1219,26 +1261,56 @@ export default function PreRegistrationPage() {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                               />
                             </svg>
-                            <p className="text-sm text-gray-600 font-medium">
-                              Click to upload QR code
+                            <p className="text-sm text-indigo-600 font-medium">
+                              Take Photo
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              Max 10MB
+                              Use camera
                             </p>
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleFileSelect(index, file, "qrCode");
-                            }}
-                            className="hidden"
-                          />
-                        </label>
+                          </button>
+                          <label className="cursor-pointer block">
+                            <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
+                              <svg
+                                className="w-10 h-10 mx-auto text-gray-400 mb-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
+                              <p className="text-sm text-gray-600 font-medium">
+                                Upload Image
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Max 10MB
+                              </p>
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file)
+                                  handleFileSelect(index, file, "qrCode");
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
                       )}
                     </div>
                   )}
@@ -1377,6 +1449,26 @@ export default function PreRegistrationPage() {
             </button>
           </div>
         </form>
+
+        {scannerOpen && (
+          <QrScannerModal
+            isOpen={true}
+            onClose={() => setScannerOpen(null)}
+            mode={scannerOpen.mode}
+            onScanSuccess={(address) => {
+              handleParticipantChange(
+                scannerOpen.index,
+                "yoroiAddress",
+                address
+              );
+              setScannerOpen(null);
+            }}
+            onCaptureSuccess={(file) => {
+              handleFileSelect(scannerOpen.index, file, "qrCode");
+              setScannerOpen(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );
