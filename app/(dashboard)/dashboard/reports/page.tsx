@@ -235,6 +235,17 @@ function FacilitatorSummarySection({ data }: { data: any }) {
       ? data.event.totalCryptoReceived
       : data.summary.totalMlkbanko;
 
+  // Check if using remaining balance
+  const useRemainingBalance = data.event.useRemainingBalance || false;
+
+  // Calculate personal 20% - if using remaining balance, it's 0
+  const personalAmount = useRemainingBalance ? 0 : totalCryptoReceived * 0.2;
+  
+  // Calculate for distribution - if using remaining balance, all goes to distribution
+  const forDistribution = useRemainingBalance
+    ? totalCryptoReceived
+    : totalCryptoReceived * 0.8;
+
   // Calculate total distributed amount
   const totalDistributed = data.participants
     .filter((p: any) => p.distributionStatus === "DISTRIBUTED")
@@ -293,10 +304,13 @@ function FacilitatorSummarySection({ data }: { data: any }) {
                   €{totalCryptoReceived.toLocaleString()}
                 </td>
                 <td className="px-4 py-2 border border-gray-300">
-                  €{(totalCryptoReceived * 0.2).toLocaleString()}
+                  €{personalAmount.toLocaleString()}
+                  {useRemainingBalance && (
+                    <span className="ml-1 text-xs text-amber-600">(From Remaining)</span>
+                  )}
                 </td>
                 <td className="px-4 py-2 border border-gray-300">
-                  €{(totalCryptoReceived * 0.8).toLocaleString()}
+                  €{forDistribution.toLocaleString()}
                 </td>
                 <td className="px-4 py-2 border border-gray-300">
                   {data.summary.totalParticipants}
@@ -307,7 +321,7 @@ function FacilitatorSummarySection({ data }: { data: any }) {
                 <td className="px-4 py-2 border border-gray-300">
                   €
                   {(
-                    totalCryptoReceived * 0.8 -
+                    forDistribution -
                     totalDistributed
                   ).toLocaleString()}
                 </td>

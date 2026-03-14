@@ -34,6 +34,7 @@ export type Event = {
   defaultMlkbankoAmount: number;
   defaultRegistrationFee: number;
   totalCryptoReceived: number;
+  useRemainingBalance: boolean;
   createdAt: Date;
   createdById: string;
 };

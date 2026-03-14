@@ -163,6 +163,7 @@ export async function PUT(
       defaultMlkbankoAmount,
       defaultRegistrationFee,
       totalCryptoReceived,
+      useRemainingBalance,
     } = body;
 
     // Check if event exists
@@ -222,6 +223,10 @@ export async function PUT(
 
     if (totalCryptoReceived !== undefined) {
       updateData.totalCryptoReceived = parseFloat(totalCryptoReceived);
+    }
+
+    if (useRemainingBalance !== undefined) {
+      updateData.useRemainingBalance = useRemainingBalance;
     }
 
     // If no fields to update

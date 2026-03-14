@@ -56,6 +56,7 @@ model Event {
   defaultMlkbankoAmount   Float         @default(500)
   defaultRegistrationFee  Float         @default(100)
   totalCryptoReceived     Float         @default(0)
+  useRemainingBalance     Boolean       @default(false)
   createdAt               DateTime      @default(now())
   
   participants Participant[]

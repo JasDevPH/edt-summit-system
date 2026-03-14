@@ -18,6 +18,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
       defaultMlkbankoAmount,
       defaultRegistrationFee,
       totalCryptoReceived,
+      useRemainingBalance,
     } = body;
 
     // Validate required fields
@@ -62,6 +63,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
         totalCryptoReceived: totalCryptoReceived
           ? parseFloat(totalCryptoReceived)
           : 0,
+        useRemainingBalance: useRemainingBalance || false,
         createdById: user.id,
       },
       include: {

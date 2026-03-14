@@ -25,6 +25,7 @@ export default function EventFormModal({
     defaultMlkbankoAmount: "500",
     defaultRegistrationFee: "100",
     totalCryptoReceived: "0",
+    useRemainingBalance: false,
   });
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function EventFormModal({
         defaultMlkbankoAmount: event.defaultMlkbankoAmount.toString(),
         defaultRegistrationFee: event.defaultRegistrationFee.toString(),
         totalCryptoReceived: event.totalCryptoReceived.toString(),
+        useRemainingBalance: event.useRemainingBalance || false,
       });
     } else {
       setFormData({
@@ -44,6 +46,7 @@ export default function EventFormModal({
         defaultMlkbankoAmount: "500",
         defaultRegistrationFee: "100",
         totalCryptoReceived: "0",
+        useRemainingBalance: false,
       });
     }
   }, [event]);
@@ -57,6 +60,7 @@ export default function EventFormModal({
       defaultMlkbankoAmount: parseFloat(formData.defaultMlkbankoAmount),
       defaultRegistrationFee: parseFloat(formData.defaultRegistrationFee),
       totalCryptoReceived: parseFloat(formData.totalCryptoReceived),
+      useRemainingBalance: formData.useRemainingBalance,
     };
 
     const mutation = event ? updateEvent : createEvent;
@@ -70,15 +74,17 @@ export default function EventFormModal({
           defaultMlkbankoAmount: "500",
           defaultRegistrationFee: "100",
           totalCryptoReceived: "0",
+          useRemainingBalance: false,
         });
       },
     });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -248,6 +254,43 @@ export default function EventFormModal({
               </svg>
               Total amount of crypto received for this event
             </p>
+          </div>
+
+          {/* Use Remaining Balance Toggle */}
+          <div className="flex items-center justify-between p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
+            <div className="flex items-center gap-3">
+              <svg
+                className="w-5 h-5 text-amber-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                />
+              </svg>
+              <div>
+                <p className="font-semibold text-gray-900">
+                  Use Remaining Balance
+                </p>
+                <p className="text-xs text-gray-600">
+                  Personal 20% will be zero, all funds go to distribution
+                </p>
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="useRemainingBalance"
+                checked={formData.useRemainingBalance}
+                onChange={handleChange}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+            </label>
           </div>
 
           {/* Default MLKBANKO Amount Field */}
