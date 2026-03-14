@@ -20,12 +20,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Force light theme — no dark mode override */
 
 body {
   background: var(--background);
@@ -34,6 +29,13 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+
+input,
+select,
+textarea {
+  color: #000;
 }
 
 /* Custom scrollbar */

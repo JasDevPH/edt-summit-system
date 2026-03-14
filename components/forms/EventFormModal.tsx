@@ -85,15 +85,15 @@ export default function EventFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 my-8 transform transition-all">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg sm:mx-4 sm:my-8 transform transition-all max-h-[95vh] sm:max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b-2 border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b-2 border-gray-200 shrink-0">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
               {event ? "Edit Event" : "Create New Event"}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">
               {event
                 ? "Update event information"
                 : "Set up a new EDT Summit event"}
@@ -121,7 +121,7 @@ export default function EventFormModal({
 
         <form
           onSubmit={handleSubmit}
-          className="p-6 space-y-5 max-h-[70vh] overflow-y-auto"
+          className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1"
         >
           {/* Facilitator Field */}
           <div>

@@ -11,6 +11,12 @@ import { useAppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/uiSlice";
 import { Participant, RegistrationSource } from "@/types";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const QrScannerModal = dynamic(
+  () => import("@/components/prereg/QrScannerModal"),
+  { ssr: false }
+);
 
 interface ParticipantFormModalProps {
   isOpen: boolean;
@@ -63,6 +69,9 @@ export default function ParticipantFormModal({
   });
 
   const [uploading, setUploading] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState<{
+    mode: "scan" | "capture";
+  } | null>(null);
 
   useEffect(() => {
     setUploading(false);
@@ -327,15 +336,15 @@ export default function ParticipantFormModal({
     createParticipant.isPending || updateParticipant.isPending || uploading;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl my-8 transform transition-all">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-3xl sm:my-8 transform transition-all max-h-[95vh] sm:max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b-2 border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b-2 border-gray-200 shrink-0">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
               {participant ? "Edit Participant" : "Add Participant"}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">
               {participant
                 ? "Update participant information"
                 : "Register a new participant for this event"}
@@ -363,7 +372,7 @@ export default function ParticipantFormModal({
 
         <form
           onSubmit={handleSubmit}
-          className="p-6 space-y-5 max-h-[70vh] overflow-y-auto"
+          className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1"
         >
           {/* Name Fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -381,7 +390,7 @@ export default function ParticipantFormModal({
                 required
                 value={formData.lastname}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                 placeholder="Dela Cruz"
               />
             </div>
@@ -400,7 +409,7 @@ export default function ParticipantFormModal({
                 required
                 value={formData.firstname}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                 placeholder="Juan"
               />
             </div>
@@ -418,7 +427,7 @@ export default function ParticipantFormModal({
                 type="text"
                 value={formData.middlename}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                 placeholder="Santos"
               />
             </div>
@@ -455,7 +464,7 @@ export default function ParticipantFormModal({
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                   placeholder="juan@example.com"
                 />
               </div>
@@ -490,7 +499,7 @@ export default function ParticipantFormModal({
                   type="text"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                   placeholder="09123456789"
                 />
               </div>
@@ -531,7 +540,7 @@ export default function ParticipantFormModal({
                   type="text"
                   value={formData.homeAddress}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                   placeholder="123 Main St, City"
                 />
               </div>
@@ -566,7 +575,7 @@ export default function ParticipantFormModal({
                   type="date"
                   value={formData.birthday}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                 />
               </div>
             </div>
@@ -581,10 +590,42 @@ export default function ParticipantFormModal({
               >
                 Yoroi Address <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    id="yoroiAddress"
+                    name="yoroiAddress"
+                    type="text"
+                    required
+                    value={formData.yoroiAddress}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
+                    placeholder="addr1..."
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setScannerOpen({ mode: "scan" })}
+                  className="px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-150 shadow-md flex items-center gap-1"
+                  title="Scan QR Code"
+                >
                   <svg
-                    className="h-5 w-5 text-gray-400"
+                    className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -593,20 +634,11 @@ export default function ParticipantFormModal({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                     />
                   </svg>
-                </div>
-                <input
-                  id="yoroiAddress"
-                  name="yoroiAddress"
-                  type="text"
-                  required
-                  value={formData.yoroiAddress}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
-                  placeholder="addr1..."
-                />
+                  <span className="hidden sm:inline text-sm font-semibold">Scan</span>
+                </button>
               </div>
             </div>
 
@@ -639,7 +671,7 @@ export default function ParticipantFormModal({
                   required
                   value={formData.registrationSource}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 appearance-none bg-white"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 appearance-none bg-white text-black"
                 >
                   <option value="ONSITE">Onsite</option>
                   <option value="PRE_REGISTRATION">Pre-Registration</option>
@@ -697,7 +729,7 @@ export default function ParticipantFormModal({
                   required
                   value={formData.mlkbankoAmount}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                   placeholder="500"
                 />
               </div>
@@ -734,7 +766,7 @@ export default function ParticipantFormModal({
                   required
                   value={formData.registrationFee}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                   placeholder="100"
                 />
               </div>
@@ -783,10 +815,14 @@ export default function ParticipantFormModal({
                   </button>
                 </div>
               ) : (
-                <label className="cursor-pointer block">
-                  <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setScannerOpen({ mode: "capture" })}
+                    className="w-full px-3 py-6 border-2 border-dashed border-indigo-300 rounded-xl hover:bg-indigo-50 text-center transition-all duration-150"
+                  >
                     <svg
-                      className="w-10 h-10 mx-auto text-gray-400 mb-2"
+                      className="w-8 h-8 mx-auto text-indigo-400 mb-1"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -795,22 +831,45 @@ export default function ParticipantFormModal({
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    <p className="text-sm text-gray-600 font-medium">QR Code</p>
-                    <p className="text-xs text-gray-500 mt-1">Max 10MB</p>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleFileSelect(file, "qrCode");
-                    }}
-                    className="hidden"
-                  />
-                </label>
+                    <p className="text-xs text-indigo-600 font-medium">Take Photo</p>
+                  </button>
+                  <label className="cursor-pointer block">
+                    <div className="w-full px-3 py-6 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
+                      <svg
+                        className="w-8 h-8 mx-auto text-gray-400 mb-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <p className="text-xs text-gray-600 font-medium">Upload Image</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileSelect(file, "qrCode");
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               )}
             </div>
 
@@ -921,6 +980,22 @@ export default function ParticipantFormModal({
             </button>
           </div>
         </form>
+
+        {scannerOpen && (
+          <QrScannerModal
+            isOpen={true}
+            onClose={() => setScannerOpen(null)}
+            mode={scannerOpen.mode}
+            onScanSuccess={(address) => {
+              setFormData((prev) => ({ ...prev, yoroiAddress: address }));
+              setScannerOpen(null);
+            }}
+            onCaptureSuccess={(file) => {
+              handleFileSelect(file, "qrCode");
+              setScannerOpen(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );
