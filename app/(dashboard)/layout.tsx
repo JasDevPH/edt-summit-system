@@ -102,9 +102,11 @@ export default function DashboardLayout({
                 href="/dashboard/events"
                 className="flex items-center gap-2"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">ED</span>
-                </div>
+                <img
+                  src="/edt logo.png"
+                  alt="EDT Summit"
+                  className="w-8 h-8 object-contain"
+                />
                 <span className="text-lg font-semibold text-gray-900">
                   EDT Summit
                 </span>

@@ -40,9 +40,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl mb-4 shadow-lg">
-            <span className="text-white font-bold text-2xl">ED</span>
-          </div>
+          <img
+            src="/edt logo.png"
+            alt="EDT Summit"
+            className="w-20 h-20 mx-auto mb-4 object-contain"
+          />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome back
           </h1>
