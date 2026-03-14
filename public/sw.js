@@ -1,5 +1,5 @@
-const CACHE_NAME = "edt-summit-v1";
-const ICON_URLS = ["/icons/icon-192x192.png", "/icons/icon-512x512.png"];
+const CACHE_NAME = "edt-summit-v2";
+const ICON_URLS = ["/edt logo.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

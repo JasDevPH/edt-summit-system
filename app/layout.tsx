@@ -27,6 +27,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "EDT Summit Management System",
   description: "Manage events, participants, expenses, and financial reports",
+  icons: {
+    icon: "/edt logo.png",
+    apple: "/edt logo.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
