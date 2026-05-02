@@ -47,24 +47,15 @@ async function resizeImageFile(file: File, maxPx = 1200): Promise<string> {
 export async function queueParticipant(
   eventId: string,
   formData: PendingParticipant["formData"],
-  imageFiles: { qrCode: File | null; paymentProof: File | null }
+  imageFiles: { qrCode: File | null }
 ): Promise<string> {
   const localId = generateLocalId();
 
   let qrCodeBase64: string | null = null;
-  let paymentProofBase64: string | null = null;
 
   if (imageFiles.qrCode) {
     try {
       qrCodeBase64 = await resizeImageFile(imageFiles.qrCode);
-    } catch {
-      // If resize fails, skip the image rather than blocking the queue
-    }
-  }
-
-  if (imageFiles.paymentProof) {
-    try {
-      paymentProofBase64 = await resizeImageFile(imageFiles.paymentProof);
     } catch {
       // If resize fails, skip the image rather than blocking the queue
     }
@@ -75,7 +66,7 @@ export async function queueParticipant(
     eventId,
     formData,
     qrCodeBase64,
-    paymentProofBase64,
+    paymentProofBase64: null,
     status: "pending",
     retryCount: 0,
     createdAt: Date.now(),

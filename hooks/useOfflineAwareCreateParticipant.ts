@@ -24,7 +24,6 @@ interface CreateParticipantFormData {
 
 interface ImageFiles {
   qrCode: File | null;
-  paymentProof: File | null;
 }
 
 export function useOfflineAwareCreateParticipant(eventId: string) {

@@ -50,24 +50,19 @@ export default function ParticipantFormModal({
     qrCodeUrl: "",
     mlkbankoAmount: "",
     registrationFee: "",
-    paymentProofUrl: "",
     registrationSource: "ONSITE" as RegistrationSource,
   });
 
   const [imageFiles, setImageFiles] = useState<{
     qrCode: File | null;
-    paymentProof: File | null;
   }>({
     qrCode: null,
-    paymentProof: null,
   });
 
   const [imagePreviews, setImagePreviews] = useState<{
     qrCode: string | null;
-    paymentProof: string | null;
   }>({
     qrCode: null,
-    paymentProof: null,
   });
 
   const [uploading, setUploading] = useState(false);
@@ -96,16 +91,13 @@ export default function ParticipantFormModal({
         qrCodeUrl: participant.qrCodeUrl || "",
         mlkbankoAmount: participant.mlkbankoAmount.toString(),
         registrationFee: participant.registrationFee.toString(),
-        paymentProofUrl: participant.paymentProofUrl || "",
         registrationSource: participant.registrationSource,
       });
       setImagePreviews({
         qrCode: participant.qrCodeUrl || null,
-        paymentProof: participant.paymentProofUrl || null,
       });
       setImageFiles({
         qrCode: null,
-        paymentProof: null,
       });
     } else if (eventData?.event) {
       setFormData({
@@ -121,21 +113,18 @@ export default function ParticipantFormModal({
         qrCodeUrl: "",
         mlkbankoAmount: eventData.event.defaultMlkbankoAmount.toString(),
         registrationFee: eventData.event.defaultRegistrationFee.toString(),
-        paymentProofUrl: "",
         registrationSource: "ONSITE",
       });
       setImagePreviews({
         qrCode: null,
-        paymentProof: null,
       });
       setImageFiles({
         qrCode: null,
-        paymentProof: null,
       });
     }
   }, [participant, eventData, isOpen]);
 
-  const handleFileSelect = (file: File, type: "qrCode" | "paymentProof") => {
+  const handleFileSelect = (file: File, type: "qrCode") => {
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       dispatch(
@@ -169,41 +158,26 @@ export default function ParticipantFormModal({
     setImagePreviews((prev) => ({ ...prev, [type]: previewUrl }));
   };
 
-  const removeImage = (type: "qrCode" | "paymentProof") => {
+  const removeImage = (type: "qrCode") => {
     setImageFiles((prev) => ({ ...prev, [type]: null }));
 
     if (participant) {
-      const originalUrl =
-        type === "qrCode" ? participant.qrCodeUrl : participant.paymentProofUrl;
+      const originalUrl = participant.qrCodeUrl;
       setImagePreviews((prev) => ({ ...prev, [type]: originalUrl || null }));
-      setFormData((prev) => ({
-        ...prev,
-        [type === "qrCode" ? "qrCodeUrl" : "paymentProofUrl"]:
-          originalUrl || "",
-      }));
+      setFormData((prev) => ({ ...prev, qrCodeUrl: originalUrl || "" }));
     } else {
       setImagePreviews((prev) => ({ ...prev, [type]: null }));
-      if (type === "qrCode") {
-        setFormData((prev) => ({ ...prev, qrCodeUrl: "" }));
-      } else {
-        setFormData((prev) => ({ ...prev, paymentProofUrl: "" }));
-      }
+      setFormData((prev) => ({ ...prev, qrCodeUrl: "" }));
     }
   };
 
-  const uploadImage = async (
-    file: File,
-    type: "qrCode" | "paymentProof"
-  ): Promise<string | null> => {
+  const uploadImage = async (file: File): Promise<string | null> => {
     try {
       const token = localStorage.getItem("token");
 
       const formDataToUpload = new FormData();
       formDataToUpload.append("file", file);
-      formDataToUpload.append(
-        "folder",
-        type === "qrCode" ? "qr-codes" : "payment-proofs"
-      );
+      formDataToUpload.append("folder", "qr-codes");
       formDataToUpload.append("resourceType", "image");
 
       const response = await fetch("/api/upload", {
@@ -258,8 +232,8 @@ export default function ParticipantFormModal({
       const onSuccess = () => {
         setUploading(false);
         onClose();
-        setImageFiles({ qrCode: null, paymentProof: null });
-        setImagePreviews({ qrCode: null, paymentProof: null });
+        setImageFiles({ qrCode: null });
+        setImagePreviews({ qrCode: null });
 
         if (!participant && eventData?.event) {
           setFormData({
@@ -275,7 +249,6 @@ export default function ParticipantFormModal({
             qrCodeUrl: "",
             mlkbankoAmount: eventData.event.defaultMlkbankoAmount.toString(),
             registrationFee: eventData.event.defaultRegistrationFee.toString(),
-            paymentProofUrl: "",
             registrationSource: "ONSITE",
           });
         }
@@ -288,14 +261,9 @@ export default function ParticipantFormModal({
       if (participant) {
         // Update always goes online
         let qrCodeUrl = formData.qrCodeUrl;
-        let paymentProofUrl = formData.paymentProofUrl;
 
         if (imageFiles.qrCode) {
-          qrCodeUrl = (await uploadImage(imageFiles.qrCode, "qrCode")) || "";
-        }
-        if (imageFiles.paymentProof) {
-          paymentProofUrl =
-            (await uploadImage(imageFiles.paymentProof, "paymentProof")) || "";
+          qrCodeUrl = (await uploadImage(imageFiles.qrCode)) || "";
         }
 
         updateParticipant.mutate(
@@ -307,7 +275,6 @@ export default function ParticipantFormModal({
             birthday: formData.birthday,
             yoroiAddress: formData.yoroiAddress,
             qrCodeUrl,
-            paymentProofUrl,
             mlkbankoAmount: parseFloat(formData.mlkbankoAmount),
             registrationFee: parseFloat(formData.registrationFee),
             registrationSource: formData.registrationSource,
@@ -317,16 +284,9 @@ export default function ParticipantFormModal({
       } else {
         // Create — offline-aware (uploads images only when online)
         let qrCodeUrl = formData.qrCodeUrl;
-        let paymentProofUrl = formData.paymentProofUrl;
 
-        if (isOnline) {
-          if (imageFiles.qrCode) {
-            qrCodeUrl = (await uploadImage(imageFiles.qrCode, "qrCode")) || "";
-          }
-          if (imageFiles.paymentProof) {
-            paymentProofUrl =
-              (await uploadImage(imageFiles.paymentProof, "paymentProof")) || "";
-          }
+        if (isOnline && imageFiles.qrCode) {
+          qrCodeUrl = (await uploadImage(imageFiles.qrCode)) || "";
         }
 
         const submitData = {
@@ -337,7 +297,7 @@ export default function ParticipantFormModal({
           birthday: formData.birthday,
           yoroiAddress: formData.yoroiAddress,
           qrCodeUrl,
-          paymentProofUrl,
+          paymentProofUrl: "",
           mlkbankoAmount: parseFloat(formData.mlkbankoAmount),
           registrationFee: parseFloat(formData.registrationFee),
           registrationSource: formData.registrationSource,
@@ -846,7 +806,7 @@ export default function ParticipantFormModal({
           </div>
 
           {/* Image Uploads */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
             {/* QR Code Upload */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -953,86 +913,6 @@ export default function ParticipantFormModal({
               )}
             </div>
 
-            {/* Payment Proof Upload */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Payment Proof{" "}
-                {imageFiles.paymentProof && (
-                  <span className="text-indigo-600 font-bold">(New)</span>
-                )}
-              </label>
-              {imagePreviews.paymentProof ? (
-                <div className="relative w-full h-40">
-                  <div className="relative w-full h-full bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
-                    <Image
-                      src={imagePreviews.paymentProof}
-                      alt="Payment Proof Preview"
-                      fill
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeImage("paymentProof")}
-                    className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-lg transition-all duration-150"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              ) : imageUploadDisabled ? (
-                <div className="w-full px-4 py-8 border-2 border-dashed border-gray-200 rounded-xl text-center bg-gray-50">
-                  <svg className="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01" />
-                  </svg>
-                  <p className="text-sm text-gray-400">Unavailable offline</p>
-                </div>
-              ) : (
-                <label className="cursor-pointer block">
-                  <div className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 text-center transition-all duration-150">
-                    <svg
-                      className="w-10 h-10 mx-auto text-gray-400 mb-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <p className="text-sm text-gray-600 font-medium">
-                      Payment Proof
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Max 10MB</p>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleFileSelect(file, "paymentProof");
-                    }}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
           </div>
 
           {/* Action Buttons */}
