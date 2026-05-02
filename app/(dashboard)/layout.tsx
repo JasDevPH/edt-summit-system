@@ -7,6 +7,7 @@ import { useLogout } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import OfflineBanner from "@/components/ui/OfflineBanner";
 
 export default function DashboardLayout({
   children,
@@ -243,6 +244,8 @@ export default function DashboardLayout({
           {/* Page Content */}
           <main className="p-6 lg:p-8">{children}</main>
         </div>
+
+        <OfflineBanner />
 
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (

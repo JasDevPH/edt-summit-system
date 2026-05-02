@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // FILE: hooks/useParticipants.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getPendingParticipants, getPendingCountForEvent } from "@/lib/offline/offlineQueue";
 import { useAppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/uiSlice";
 import apiClient from "@/lib/api/client";
@@ -8,6 +9,8 @@ import { Participant, RegistrationSource, DistributionStatus } from "@/types";
 
 interface CreateParticipantData {
   fullname: string;
+  email?: string;
+  phoneNumber?: string;
   homeAddress?: string;
   birthday?: string;
   yoroiAddress: string;
@@ -200,6 +203,27 @@ export function useDeleteParticipant() {
         error.response?.data?.message || "Failed to delete participant";
       dispatch(showToast({ message, type: "error" }));
     },
+  });
+}
+
+// Pending offline participants for a given event
+export function usePendingParticipants(eventId: string) {
+  return useQuery({
+    queryKey: ["pendingParticipants", eventId],
+    queryFn: async () => {
+      const all = await getPendingParticipants();
+      return all.filter((p) => p.eventId === eventId);
+    },
+    refetchInterval: 5000,
+  });
+}
+
+// Pending count for a given event
+export function usePendingCountForEvent(eventId: string) {
+  return useQuery({
+    queryKey: ["pendingCount", eventId],
+    queryFn: () => getPendingCountForEvent(eventId),
+    refetchInterval: 5000,
   });
 }
 

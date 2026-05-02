@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import ParticipantFormModal from "@/components/forms/ParticipantFormModal";
 import ParticipantViewModal from "@/components/modals/ParticipantViewModal";
 import { Participant, DistributionStatus, RegistrationSource } from "@/types";
+import { formatFullname } from "@/lib/nameUtils";
 
 export default function ParticipantsPage() {
   const params = useParams();
@@ -459,11 +460,11 @@ function ParticipantRow({
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-semibold text-sm shrink-0">
-            {participant.fullname.charAt(0).toUpperCase()}
+            {formatFullname(participant.fullname).charAt(0).toUpperCase()}
           </div>
           <div className="ml-4">
             <div className="text-sm font-medium text-gray-900">
-              {participant.fullname}
+              {formatFullname(participant.fullname)}
             </div>
             <div className="text-sm text-gray-500 font-mono">
               {participant.yoroiAddress.slice(0, 20)}...

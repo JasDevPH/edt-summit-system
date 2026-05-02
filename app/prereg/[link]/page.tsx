@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { buildFullname, parseFullname, formatFullname } from "@/lib/nameUtils";
 
 const QrScannerModal = dynamic(
   () => import("@/components/prereg/QrScannerModal"),
@@ -25,6 +26,7 @@ type ParticipantForm = {
   lastname: string;
   firstname: string;
   middlename: string;
+  suffix: string;
   email: string;
   phoneNumber: string;
   homeAddress: string;
@@ -69,6 +71,7 @@ export default function PreRegistrationPage() {
       lastname: "",
       firstname: "",
       middlename: "",
+      suffix: "",
       email: "",
       phoneNumber: "",
       homeAddress: "",
@@ -121,6 +124,7 @@ export default function PreRegistrationPage() {
               lastname: "",
               firstname: "",
               middlename: "",
+              suffix: "",
               email: "",
               phoneNumber: "",
               homeAddress: "",
@@ -146,14 +150,6 @@ export default function PreRegistrationPage() {
     fetchEvent();
   }, [link]);
 
-  const parseFullname = (fullname: string) => {
-    const parts = fullname.split(",");
-    const lastname = parts[0]?.trim() || "";
-    const firstAndMiddle = parts[1]?.trim().split(" ") || [];
-    const firstname = firstAndMiddle[0] || "";
-    const middlename = firstAndMiddle.slice(1).join(" ") || "";
-    return { lastname, firstname, middlename };
-  };
 
   const handleSearch = async (index: number) => {
     const query = searchQuery[index];
@@ -192,7 +188,7 @@ export default function PreRegistrationPage() {
     index: number,
     participant: SearchResult
   ) => {
-    const { lastname, firstname, middlename } = parseFullname(
+    const { lastname, firstname, middlename, suffix } = parseFullname(
       participant.fullname
     );
 
@@ -202,6 +198,7 @@ export default function PreRegistrationPage() {
       lastname,
       firstname,
       middlename,
+      suffix,
       email: participant.email || "",
       phoneNumber: participant.phoneNumber || "",
       homeAddress: participant.homeAddress || "",
@@ -385,6 +382,7 @@ export default function PreRegistrationPage() {
         lastname: "",
         firstname: "",
         middlename: "",
+        suffix: "",
         email: "",
         phoneNumber: "",
         homeAddress: "",
@@ -492,9 +490,12 @@ export default function PreRegistrationPage() {
               )) || "";
           }
 
-          const fullname = participant.middlename
-            ? `${participant.lastname}, ${participant.firstname} ${participant.middlename}`
-            : `${participant.lastname}, ${participant.firstname}`;
+          const fullname = buildFullname(
+            participant.lastname,
+            participant.firstname,
+            participant.middlename,
+            participant.suffix
+          );
 
           return {
             fullname,
@@ -962,7 +963,7 @@ export default function PreRegistrationPage() {
                           className="w-full px-4 py-3 text-left hover:bg-indigo-50 border-b border-gray-200 last:border-b-0 transition-all duration-150"
                         >
                           <p className="font-semibold text-gray-900">
-                            {result.fullname}
+                            {formatFullname(result.fullname)}
                           </p>
                           {result.email && (
                             <p className="text-sm text-gray-600">
@@ -978,7 +979,7 @@ export default function PreRegistrationPage() {
 
               {/* Form Fields */}
               <div className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <label
                       htmlFor={`lastname-${index}`}
@@ -1023,7 +1024,7 @@ export default function PreRegistrationPage() {
                         )
                       }
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
-                      placeholder="Juan"
+                      placeholder="Juan Pedro"
                     />
                   </div>
 
@@ -1048,6 +1049,30 @@ export default function PreRegistrationPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150"
                       placeholder="Santos (optional)"
                     />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor={`suffix-${index}`}
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Suffix
+                    </label>
+                    <select
+                      id={`suffix-${index}`}
+                      value={participant.suffix}
+                      onChange={(e) =>
+                        handleParticipantChange(index, "suffix", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 bg-white"
+                    >
+                      <option value="">None</option>
+                      <option value="Jr.">Jr.</option>
+                      <option value="Sr.">Sr.</option>
+                      <option value="II">II</option>
+                      <option value="III">III</option>
+                      <option value="IV">IV</option>
+                    </select>
                   </div>
                 </div>
 

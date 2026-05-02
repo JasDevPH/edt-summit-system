@@ -2,6 +2,7 @@
 "use client";
 
 import { Participant } from "@/types";
+import { parseFullname } from "@/lib/nameUtils";
 import Image from "next/image";
 
 interface ParticipantViewModalProps {
@@ -17,17 +18,7 @@ export default function ParticipantViewModal({
 }: ParticipantViewModalProps) {
   if (!isOpen || !participant) return null;
 
-  const parseFullname = (fullname: string) => {
-    const parts = fullname.split(",");
-    const lastname = parts[0]?.trim() || "";
-    const firstAndMiddle = parts[1]?.trim().split(" ") || [];
-    const firstname = firstAndMiddle[0] || "";
-    const middlename = firstAndMiddle.slice(1).join(" ") || "";
-
-    return { lastname, firstname, middlename };
-  };
-
-  const { lastname, firstname, middlename } = parseFullname(
+  const { lastname, firstname, middlename, suffix } = parseFullname(
     participant.fullname
   );
 
@@ -139,6 +130,15 @@ export default function ParticipantViewModal({
                     Middle Name
                   </p>
                   <p className="font-semibold text-gray-900">{middlename}</p>
+                </div>
+              )}
+
+              {suffix && (
+                <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl">
+                  <p className="text-xs font-semibold text-green-600 mb-1">
+                    Suffix
+                  </p>
+                  <p className="font-semibold text-gray-900">{suffix}</p>
                 </div>
               )}
 

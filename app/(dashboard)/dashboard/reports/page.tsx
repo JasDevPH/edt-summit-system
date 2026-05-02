@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useEvents } from "@/hooks/useEvents";
 import { useAppSelector } from "@/store/store";
 import { useSearchParams } from "next/navigation";
+import { formatFullname } from "@/lib/nameUtils";
 
 export default function ReportsPage() {
   const searchParams = useSearchParams();
@@ -384,7 +385,7 @@ function DetailedParticipantSection({ data }: { data: any }) {
                     {index + 1}
                   </td>
                   <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">
-                    {participant.fullname}
+                    {formatFullname(participant.fullname)}
                   </td>
                   <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">
                     {participant.email || "-"}

@@ -2,14 +2,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  useCreateParticipant,
-  useUpdateParticipant,
-} from "@/hooks/useParticipants";
+import { useUpdateParticipant } from "@/hooks/useParticipants";
+import { useOfflineAwareCreateParticipant } from "@/hooks/useOfflineAwareCreateParticipant";
+import { useOfflineStatus } from "@/hooks/useOfflineStatus";
 import { useEvent } from "@/hooks/useEvents";
 import { useAppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/uiSlice";
 import { Participant, RegistrationSource } from "@/types";
+import { buildFullname, parseFullname } from "@/lib/nameUtils";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
@@ -32,14 +32,16 @@ export default function ParticipantFormModal({
   participant,
 }: ParticipantFormModalProps) {
   const dispatch = useAppDispatch();
-  const createParticipant = useCreateParticipant();
+  const createParticipant = useOfflineAwareCreateParticipant(eventId);
   const updateParticipant = useUpdateParticipant(participant?.id || "");
   const { data: eventData } = useEvent(eventId);
+  const { isOnline } = useOfflineStatus(eventId);
 
   const [formData, setFormData] = useState({
     lastname: "",
     firstname: "",
     middlename: "",
+    suffix: "",
     email: "",
     phoneNumber: "",
     homeAddress: "",
@@ -77,16 +79,13 @@ export default function ParticipantFormModal({
     setUploading(false);
 
     if (participant) {
-      const nameParts = participant.fullname.split(",");
-      const lastname = nameParts[0]?.trim() || "";
-      const firstAndMiddle = nameParts[1]?.trim().split(" ") || [];
-      const firstname = firstAndMiddle[0] || "";
-      const middlename = firstAndMiddle.slice(1).join(" ") || "";
+      const { lastname, firstname, middlename, suffix } = parseFullname(participant.fullname);
 
       setFormData({
         lastname,
         firstname,
         middlename,
+        suffix,
         email: participant.email || "",
         phoneNumber: participant.phoneNumber || "",
         homeAddress: participant.homeAddress || "",
@@ -113,6 +112,7 @@ export default function ParticipantFormModal({
         lastname: "",
         firstname: "",
         middlename: "",
+        suffix: "",
         email: "",
         phoneNumber: "",
         homeAddress: "",
@@ -248,72 +248,108 @@ export default function ParticipantFormModal({
     setUploading(true);
 
     try {
-      let qrCodeUrl = formData.qrCodeUrl;
-      let paymentProofUrl = formData.paymentProofUrl;
+      const fullname = buildFullname(
+        formData.lastname,
+        formData.firstname,
+        formData.middlename,
+        formData.suffix
+      );
 
-      if (imageFiles.qrCode) {
-        qrCodeUrl = (await uploadImage(imageFiles.qrCode, "qrCode")) || "";
-      }
+      const onSuccess = () => {
+        setUploading(false);
+        onClose();
+        setImageFiles({ qrCode: null, paymentProof: null });
+        setImagePreviews({ qrCode: null, paymentProof: null });
 
-      if (imageFiles.paymentProof) {
-        paymentProofUrl =
-          (await uploadImage(imageFiles.paymentProof, "paymentProof")) || "";
-      }
-
-      const fullname = formData.middlename
-        ? `${formData.lastname}, ${formData.firstname} ${formData.middlename}`
-        : `${formData.lastname}, ${formData.firstname}`;
-
-      const submitData = {
-        fullname,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        homeAddress: formData.homeAddress,
-        birthday: formData.birthday,
-        yoroiAddress: formData.yoroiAddress,
-        qrCodeUrl,
-        paymentProofUrl,
-        mlkbankoAmount: parseFloat(formData.mlkbankoAmount),
-        registrationFee: parseFloat(formData.registrationFee),
-        registrationSource: formData.registrationSource,
-        eventId,
+        if (!participant && eventData?.event) {
+          setFormData({
+            lastname: "",
+            firstname: "",
+            middlename: "",
+            suffix: "",
+            email: "",
+            phoneNumber: "",
+            homeAddress: "",
+            birthday: "",
+            yoroiAddress: "",
+            qrCodeUrl: "",
+            mlkbankoAmount: eventData.event.defaultMlkbankoAmount.toString(),
+            registrationFee: eventData.event.defaultRegistrationFee.toString(),
+            paymentProofUrl: "",
+            registrationSource: "ONSITE",
+          });
+        }
       };
 
-      console.log("Submitting participant data:", submitData);
+      const onError = () => {
+        setUploading(false);
+      };
 
-      const mutation = participant ? updateParticipant : createParticipant;
+      if (participant) {
+        // Update always goes online
+        let qrCodeUrl = formData.qrCodeUrl;
+        let paymentProofUrl = formData.paymentProofUrl;
 
-      mutation.mutate(submitData, {
-        onSuccess: () => {
-          setUploading(false);
-          onClose();
-          setImageFiles({ qrCode: null, paymentProof: null });
-          setImagePreviews({ qrCode: null, paymentProof: null });
+        if (imageFiles.qrCode) {
+          qrCodeUrl = (await uploadImage(imageFiles.qrCode, "qrCode")) || "";
+        }
+        if (imageFiles.paymentProof) {
+          paymentProofUrl =
+            (await uploadImage(imageFiles.paymentProof, "paymentProof")) || "";
+        }
 
-          if (!participant && eventData?.event) {
-            setFormData({
-              lastname: "",
-              firstname: "",
-              middlename: "",
-              email: "",
-              phoneNumber: "",
-              homeAddress: "",
-              birthday: "",
-              yoroiAddress: "",
-              qrCodeUrl: "",
-              mlkbankoAmount: eventData.event.defaultMlkbankoAmount.toString(),
-              registrationFee:
-                eventData.event.defaultRegistrationFee.toString(),
-              paymentProofUrl: "",
-              registrationSource: "ONSITE",
-            });
+        updateParticipant.mutate(
+          {
+            fullname,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            homeAddress: formData.homeAddress,
+            birthday: formData.birthday,
+            yoroiAddress: formData.yoroiAddress,
+            qrCodeUrl,
+            paymentProofUrl,
+            mlkbankoAmount: parseFloat(formData.mlkbankoAmount),
+            registrationFee: parseFloat(formData.registrationFee),
+            registrationSource: formData.registrationSource,
+          },
+          { onSuccess, onError }
+        );
+      } else {
+        // Create — offline-aware (uploads images only when online)
+        let qrCodeUrl = formData.qrCodeUrl;
+        let paymentProofUrl = formData.paymentProofUrl;
+
+        if (isOnline) {
+          if (imageFiles.qrCode) {
+            qrCodeUrl = (await uploadImage(imageFiles.qrCode, "qrCode")) || "";
           }
-        },
-        onError: () => {
-          setUploading(false);
-        },
-      });
-    } catch (error) {
+          if (imageFiles.paymentProof) {
+            paymentProofUrl =
+              (await uploadImage(imageFiles.paymentProof, "paymentProof")) || "";
+          }
+        }
+
+        const submitData = {
+          fullname,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          homeAddress: formData.homeAddress,
+          birthday: formData.birthday,
+          yoroiAddress: formData.yoroiAddress,
+          qrCodeUrl,
+          paymentProofUrl,
+          mlkbankoAmount: parseFloat(formData.mlkbankoAmount),
+          registrationFee: parseFloat(formData.registrationFee),
+          registrationSource: formData.registrationSource,
+          eventId,
+        };
+
+        await createParticipant.mutate(submitData, imageFiles, {
+          onSuccess,
+          onError,
+        });
+      }
+    } catch {
       dispatch(
         showToast({ message: "Failed to upload images", type: "error" })
       );
@@ -334,6 +370,8 @@ export default function ParticipantFormModal({
 
   const isSubmitting =
     createParticipant.isPending || updateParticipant.isPending || uploading;
+
+  const imageUploadDisabled = !isOnline;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto sm:p-4">
@@ -374,8 +412,19 @@ export default function ParticipantFormModal({
           onSubmit={handleSubmit}
           className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1"
         >
+          {/* Offline Notice */}
+          {!isOnline && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm text-amber-800 flex items-center gap-2">
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01M8.464 15.536a5 5 0 010-7.072M5.636 18.364a9 9 0 010-12.728" />
+              </svg>
+              Offline — participant will sync when connected. Image uploads disabled.
+            </div>
+          )}
+
           {/* Name Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label
                 htmlFor="lastname"
@@ -410,7 +459,7 @@ export default function ParticipantFormModal({
                 value={formData.firstname}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
-                placeholder="Juan"
+                placeholder="Juan Pedro"
               />
             </div>
 
@@ -430,6 +479,29 @@ export default function ParticipantFormModal({
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 text-black"
                 placeholder="Santos"
               />
+            </div>
+
+            <div>
+              <label
+                htmlFor="suffix"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Suffix
+              </label>
+              <select
+                id="suffix"
+                name="suffix"
+                value={formData.suffix}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 bg-white text-black"
+              >
+                <option value="">None</option>
+                <option value="Jr.">Jr.</option>
+                <option value="Sr.">Sr.</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+              </select>
             </div>
           </div>
 
@@ -814,6 +886,14 @@ export default function ParticipantFormModal({
                     </svg>
                   </button>
                 </div>
+              ) : imageUploadDisabled ? (
+                <div className="w-full px-4 py-8 border-2 border-dashed border-gray-200 rounded-xl text-center bg-gray-50">
+                  <svg className="w-8 h-8 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01" />
+                  </svg>
+                  <p className="text-xs text-gray-400">Unavailable offline</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -911,6 +991,14 @@ export default function ParticipantFormModal({
                       />
                     </svg>
                   </button>
+                </div>
+              ) : imageUploadDisabled ? (
+                <div className="w-full px-4 py-8 border-2 border-dashed border-gray-200 rounded-xl text-center bg-gray-50">
+                  <svg className="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01" />
+                  </svg>
+                  <p className="text-sm text-gray-400">Unavailable offline</p>
                 </div>
               ) : (
                 <label className="cursor-pointer block">
