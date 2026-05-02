@@ -159,13 +159,14 @@ export default function ParticipantFormModal({
   };
 
   const removeImage = (type: "qrCode") => {
-    setImageFiles((prev) => ({ ...prev, [type]: null }));
-
-    if (participant) {
-      const originalUrl = participant.qrCodeUrl;
-      setImagePreviews((prev) => ({ ...prev, [type]: originalUrl || null }));
-      setFormData((prev) => ({ ...prev, qrCodeUrl: originalUrl || "" }));
+    if (participant && imageFiles.qrCode) {
+      // A new file was staged — revert to the saved URL
+      setImageFiles((prev) => ({ ...prev, [type]: null }));
+      setImagePreviews((prev) => ({ ...prev, [type]: participant.qrCodeUrl || null }));
+      setFormData((prev) => ({ ...prev, qrCodeUrl: participant.qrCodeUrl || "" }));
     } else {
+      // Clear entirely (new participant, or removing the existing saved image)
+      setImageFiles((prev) => ({ ...prev, [type]: null }));
       setImagePreviews((prev) => ({ ...prev, [type]: null }));
       setFormData((prev) => ({ ...prev, qrCodeUrl: "" }));
     }
